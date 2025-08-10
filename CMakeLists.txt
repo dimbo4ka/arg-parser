@@ -9,6 +9,7 @@ project(
 
 set(CMAKE_CXX_STANDARD 23)
 
+add_subdirectory(bin)
 add_subdirectory(src)
 
 enable_testing()
