@@ -21,7 +21,6 @@ target_link_libraries(
     argparser_tests
     PRIVATE
     argparser
-    argument
     GTest::gtest_main
 )
 

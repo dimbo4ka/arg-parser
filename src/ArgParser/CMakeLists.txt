@@ -1,4 +1,7 @@
-add_library(argparser STATIC ArgParser.hpp ArgParser.cpp)
+add_library(argparser STATIC ArgParser.cpp)
 
-target_include_directories(argparser PUBLIC ${CMAKE_SOURCE_DIR})
-target_link_libraries(argparser PRIVATE argument)
+target_include_directories(
+    argparser PUBLIC 
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}
+)
