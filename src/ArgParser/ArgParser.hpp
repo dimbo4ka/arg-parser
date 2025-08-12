@@ -46,13 +46,18 @@ private:
     std::string full_help_name_;
     std::string help_description_;
     char short_help_name_;
+    bool has_help_;
 
     std::string positional_argument_name_;
 
     bool ParseShortArgument(const std::vector<std::string>& args, size_t& i);
     bool ParseFullArgument(const std::vector<std::string>& args, size_t& i);
     bool ParsePositionalArgument(const std::vector<std::string>& args, size_t& i);
+    bool ParseShortFlags(const std::string& args);
     bool SetPositionalArgument();
+
+    bool IsCorrectMultiValue() const;
+    bool AllHaveValues() const;
 
     bool ConvertToNumber(const char* str, int32_t& number);
 };
