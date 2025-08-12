@@ -1,6 +1,8 @@
 #pragma once
 
+#include <charconv>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -11,7 +13,8 @@ class ArgParser {
 public:
     ArgParser(std::string);
     
-    bool Parse(std::vector<std::string>);
+    bool Parse(const std::vector<std::string>&);
+    bool Parse(int argc, char** argv);
 
     StringArg& AddStringArgument(char, std::string, std::string = "");
     StringArg& AddStringArgument(std::string, std::string = "");
@@ -36,11 +39,26 @@ private:
     std::string parser_name_;
 
     std::unordered_map<std::string, char> short_names_;
+    std::unordered_map<char, std::string> full_names_;
     std::unordered_map<std::string, std::string> descriptions_;
     std::unordered_map<std::string, std::size_t> argument_indices_;
 
     std::string full_help_name_;
     std::string help_description_;
     char short_help_name_;
+    bool has_help_;
+
+    std::string positional_argument_name_;
+
+    bool ParseShortArgument(const std::vector<std::string>& args, size_t& i);
+    bool ParseFullArgument(const std::vector<std::string>& args, size_t& i);
+    bool ParsePositionalArgument(const std::vector<std::string>& args, size_t& i);
+    bool ParseShortFlags(const std::string& args);
+    bool SetPositionalArgument();
+
+    bool IsCorrectMultiValue() const;
+    bool AllHaveValues() const;
+
+    bool ConvertToNumber(const char* str, int32_t& number);
 };
 };
