@@ -2,7 +2,7 @@
 #include <fstream>
 
 #include <gtest/gtest.h>
-#include "src/ArgParser/ArgParser.hpp"
+#include "include/ArgParser/ArgParser.hpp"
 
 using namespace ArgumentParser;
 

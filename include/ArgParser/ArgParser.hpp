@@ -6,7 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "src/Argument/Argument.hpp"
+#include "Argument/Argument.hpp"
 
 namespace ArgumentParser {
 class ArgParser {
