@@ -1,5 +1,6 @@
 #include "ArgParser/ArgParser.hpp"
 
+#include <cstring>
 #include <iostream>
 
 namespace ArgumentParser {
