@@ -50,6 +50,10 @@ private:
 
     std::string positional_argument_name_;
 
+    char GetShortName(const std::string& full_name) const;
+    std::unique_ptr<BaseArgument>& GetArgument(const std::string& full_name);
+    const std::unique_ptr<BaseArgument>& GetArgument(const std::string& full_name) const;
+
     bool ParseShortArgument(const std::vector<std::string>& args, size_t& i);
     bool ParseFullArgument(const std::vector<std::string>& args, size_t& i);
     bool ParsePositionalArgument(const std::vector<std::string>& args, size_t& i);

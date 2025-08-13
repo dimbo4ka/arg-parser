@@ -142,7 +142,56 @@ bool ArgParser::Help() const {
 }
 
 std::string ArgParser::HelpDescription() const {
-    return help_description_;
+    std::string help_description 
+                        = parser_name_ + "\n" 
+                        + help_description_ + "\n\n";
+
+    for (const auto& [full_name, description] : descriptions_) {
+        std::string short_name;
+        if (short_names_.contains(full_name)) {
+            char symbol = GetShortName(full_name);
+            short_name = "-" + std::string(1, symbol) + ",  ";
+        } else {
+            short_name = "     ";
+        }
+        std::string long_name = "--" + full_name;
+        const auto& arg = GetArgument(full_name);
+        if (arg->GetType() == ArgumentType::kString) {
+            long_name += "=<string>";
+        } else if (arg->GetType() == ArgumentType::kInt) {
+            long_name += "=<int>";
+        }
+        long_name += ",  ";
+
+        std::string full_description = description + (description.empty() ? "" : " ");
+        if (arg->IsMultiValue() || arg->IsPositional() || arg->HasDefault()) {
+            full_description += "[";
+            bool need_comma = false;
+            if (arg->IsMultiValue()) {
+                full_description += "repeated, min args = " + std::to_string(arg->min_args());
+                need_comma = true;
+            }
+            if (arg->IsPositional()) {
+                if (need_comma) 
+                    full_description += ", ";
+                full_description += "positional";
+            }
+            if (arg->HasDefault()) {
+                if (need_comma) 
+                    full_description += ", ";
+                full_description += "default = " + arg->GetDefault();
+            }
+            full_description += "]";
+        }
+
+        help_description += short_name + long_name + full_description + "\n";
+    }
+    help_description += "\n";
+    std::string help_symbol = std::string(1, short_help_name_);
+    help_description += "-" + help_symbol 
+                     + ",  --" + full_help_name_ 
+                     + " Display this help and exit\n";
+    return help_description;
 }
 
 bool ArgParser::Parse(int argc, char** argv) {
@@ -187,6 +236,10 @@ bool ArgParser::ParseShortArgument(const std::vector<std::string>& args, size_t&
     }
 
     if (!full_names_.contains(short_name)) {
+        if (short_name == short_help_name_) {
+            has_help_ = true;
+            return true;
+        }
         std::cerr << "Unknown short argument: " << short_name << std::endl;
         return false;
     }
@@ -381,4 +434,20 @@ bool ArgParser::ConvertToNumber(const char* str, int32_t& number) {
     return ec == std::errc{};
 }
 
+char ArgParser::GetShortName(std::string const& full_name) const {
+    auto it = short_names_.find(full_name);
+    if (it != short_names_.end()) {
+        return it->second;
+    }
+    return '\0';
+}
+
+auto ArgParser::GetArgument(const std::string& full_name) 
+        -> std::unique_ptr<BaseArgument>& {
+    return arguments_[argument_indices_[full_name]];
+}
+auto ArgParser::GetArgument(const std::string& full_name) const
+        -> const std::unique_ptr<BaseArgument>& {
+    return arguments_[argument_indices_.at(full_name)];
+}
 }
