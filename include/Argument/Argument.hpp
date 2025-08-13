@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace ArgumentParser {
@@ -14,6 +15,8 @@ class BaseArgument {
 public:
     virtual bool IsPositional() const = 0; 
     virtual bool IsMultiValue() const = 0;
+    virtual bool HasDefault() const = 0;
+    virtual std::string GetDefault() const = 0;
     virtual std::size_t min_args() const = 0;
     virtual ArgumentType GetType() const = 0;
     virtual std::size_t GetArgCount() const = 0;
@@ -37,6 +40,8 @@ public:
     std::size_t min_args() const override;
     std::size_t GetArgCount() const override;
     ArgumentType GetType() const override;
+    bool HasDefault() const override;
+    std::string GetDefault() const override;
     T GetValue(std::size_t index) const;
 
     void AddValue(T value);
@@ -137,6 +142,23 @@ ArgumentType Argument<T>::GetType() const {
     } else {
         throw std::runtime_error("Unsupported argument type");
     }
+}
+
+template<typename T>
+bool Argument<T>::HasDefault() const {
+    return has_default_value_;
+}
+
+template<typename T>
+std::string Argument<T>::GetDefault() const {
+    if (has_default_value_) {
+        if constexpr (std::is_same_v<T, std::string>) {
+            return default_value_;
+        } else {
+            return std::to_string(default_value_);
+        }
+    }
+    return {};
 }
 
 template<typename T>
