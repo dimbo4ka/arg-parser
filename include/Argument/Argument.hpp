@@ -61,7 +61,7 @@ private:
 
 using StringArg = Argument<std::string>;
 using FlagArg = Argument<bool>;
-using IntArg = Argument<int32_t>;
+using IntArg = Argument<int64_t>;
 
 template<typename T>
 Argument<T>::Argument() 
@@ -135,7 +135,7 @@ template<typename T>
 ArgumentType Argument<T>::GetType() const {
     if constexpr (std::is_same_v<T, std::string>) {
         return ArgumentType::kString;
-    } else if constexpr (std::is_same_v<T, int32_t>) {
+    } else if constexpr (std::is_same_v<T, int64_t>) {
         return ArgumentType::kInt;
     } else if constexpr (std::is_same_v<T, bool>) {
         return ArgumentType::kFlag;

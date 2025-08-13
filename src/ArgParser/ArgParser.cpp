@@ -35,7 +35,7 @@ IntArg& ArgParser::AddIntArgument(std::string full_name, std::string description
     return AddArgument<IntArg>();
 }
 
-int32_t ArgParser::GetIntValue(const std::string& full_name, std::size_t index) const {
+int64_t ArgParser::GetIntValue(const std::string& full_name, std::size_t index) const {
     return GetArgumentAs<IntArg>(full_name, ArgumentType::kInt).GetValue(index);
 }
 
@@ -237,7 +237,7 @@ bool ArgParser::ParseIntArgument(ParseContext& ctx) {
     ArgPtr& argument = GetArgument(ctx.full_name);
     if (!NextValueExists(ctx))
         return false;
-    int32_t number;
+    int64_t number;
     const char* value_str = ctx.is_named
                             ? ctx.args[ctx.index].c_str() + ctx.equal_pos + 1
                             : ctx.args[++ctx.index].c_str();
@@ -310,13 +310,13 @@ bool ArgParser::ParsePositionalStringArgument(ArgPtr& argument, const std::strin
 }
 
 bool ArgParser::ParsePositionalIntArgument(ArgPtr& argument, const std::string& str) {
-    int32_t number;
+    int64_t number;
     if (!ConvertToNumber(str.c_str(), number)) {
         std::cerr << "Invalid integer value for argument: " 
                     << positional_argument_name_ << std::endl;
         return false;
     }
-    dynamic_cast<Argument<int32_t>&>(*argument).AddValue(number);
+    dynamic_cast<Argument<int64_t>&>(*argument).AddValue(number);
     return true;
 }
 
@@ -372,7 +372,7 @@ bool ArgParser::ParseShortFlags(const std::string& arg) {
     return true;
 }
 
-bool ArgParser::ConvertToNumber(const char* str, int32_t& number) {
+bool ArgParser::ConvertToNumber(const char* str, int64_t& number) {
     auto [_, ec] = std::from_chars(str, str + strlen(str), number);
     return ec == std::errc{};
 }

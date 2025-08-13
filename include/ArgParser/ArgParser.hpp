@@ -23,7 +23,7 @@ public:
 
     IntArg& AddIntArgument(char, std::string, std::string = "");
     IntArg& AddIntArgument(std::string, std::string = "");
-    int32_t GetIntValue(const std::string&, std::size_t = 0) const;
+    int64_t GetIntValue(const std::string&, std::size_t = 0) const;
 
     FlagArg& AddFlag(char, std::string, std::string = "");
     FlagArg& AddFlag(std::string, std::string = "");
@@ -110,7 +110,7 @@ private:
     bool IsCorrectMultiValue() const;
     bool AllHaveValues() const;
 
-    bool ConvertToNumber(const char* str, int32_t& number);
+    bool ConvertToNumber(const char* str, int64_t& number);
 };
 
 template<typename T>
