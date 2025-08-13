@@ -8,130 +8,53 @@ ArgParser::ArgParser(std::string parser_name)
         , short_help_name_('\0')
         , has_help_(false) {}
 
-StringArg& ArgParser::AddStringArgument(
-        char short_name, 
-        std::string full_name, std::string description) {
-    if (!isalpha(short_name))
-        throw std::invalid_argument("Short name must be a single alphabetic character");
-
-    short_names_[full_name] = short_name;
-    full_names_[short_name] = full_name;
-    descriptions_[full_name] = std::move(description);
-    argument_indices_[std::move(full_name)] = arguments_.size();
-
-    std::unique_ptr<StringArg> arg_ptr = std::make_unique<StringArg>();
-    StringArg& arg = *arg_ptr; 
-    arguments_.emplace_back(std::move(arg_ptr));
-    return arg;
+StringArg& ArgParser::AddStringArgument(char short_name, std::string full_name, std::string description) {
+    CheckShortName(short_name);
+    SetArgument(short_name, full_name, description);
+    return AddArgument<StringArg>();
 }
 
-StringArg& ArgParser::AddStringArgument(std::string full_name, 
-                                        std::string description) {
-    descriptions_[full_name] = std::move(description);
-    argument_indices_[std::move(full_name)] = arguments_.size();
-
-    std::unique_ptr<StringArg> arg_ptr = std::make_unique<StringArg>();
-    StringArg& arg = *arg_ptr; 
-    arguments_.emplace_back(std::move(arg_ptr));
-    return arg;
+StringArg& ArgParser::AddStringArgument(std::string full_name, std::string description) {
+    SetDescription(full_name, description);
+    return AddArgument<StringArg>();
 }
 
-std::string ArgParser::GetStringValue(const std::string& full_name, 
-                                      std::size_t index) {  
-    if (!argument_indices_.contains(full_name))
-        throw std::invalid_argument("Unknown argument: " + full_name);
-    
-    std::size_t arg_index = argument_indices_[full_name];
-    std::unique_ptr<BaseArgument>& arg = arguments_[arg_index];
-    if (arg->GetType() != ArgumentType::kString) {
-        throw std::invalid_argument("Argument is not of string type");
-    }
-    return dynamic_cast<StringArg&>(*arg).GetValue(index);
+std::string ArgParser::GetStringValue(const std::string& full_name, std::size_t index) const {  
+    return GetArgumentAs<StringArg>(full_name, ArgumentType::kString).GetValue(index);
 }
 
-IntArg& ArgParser::AddIntArgument(char short_name, std::string full_name, 
-                                  std::string description) {
-    if (!isalpha(short_name))
-        throw std::invalid_argument("Short name must be a single alphabetic character");
-
-    short_names_[full_name] = short_name;
-    full_names_[short_name] = full_name;
-    descriptions_[full_name] = std::move(description);
-    argument_indices_[std::move(full_name)] = arguments_.size();
-
-    std::unique_ptr<IntArg> arg_ptr = std::make_unique<IntArg>();
-    IntArg& arg = *arg_ptr; 
-    arguments_.emplace_back(std::move(arg_ptr));   
-    return arg;
+IntArg& ArgParser::AddIntArgument(char short_name, std::string full_name, std::string description) {
+    CheckShortName(short_name);
+    SetArgument(short_name, full_name, description);
+    return AddArgument<IntArg>();
 }
 
-IntArg& ArgParser::AddIntArgument(std::string full_name, 
-                                  std::string description) {
-    descriptions_[full_name] = std::move(description);
-    argument_indices_[std::move(full_name)] = arguments_.size();
-
-    std::unique_ptr<IntArg> arg_ptr = std::make_unique<IntArg>();
-    IntArg& arg = *arg_ptr; 
-    arguments_.emplace_back(std::move(arg_ptr));       
-    return arg;
+IntArg& ArgParser::AddIntArgument(std::string full_name, std::string description) {
+    SetDescription(full_name, description);
+    return AddArgument<IntArg>();
 }
 
-int32_t ArgParser::GetIntValue(const std::string& full_name,    
-                               std::size_t index) {
-    if (!argument_indices_.contains(full_name))
-        throw std::invalid_argument("Unknown argument: " + full_name);
-
-    std::size_t arg_index = argument_indices_[full_name];
-    std::unique_ptr<BaseArgument>& arg = arguments_[arg_index];
-    if (arg->GetType() != ArgumentType::kInt) {
-        throw std::invalid_argument("Argument is not of int type");
-    }
-    return dynamic_cast<IntArg&>(*arg).GetValue(index);
+int32_t ArgParser::GetIntValue(const std::string& full_name, std::size_t index) const {
+    return GetArgumentAs<IntArg>(full_name, ArgumentType::kInt).GetValue(index);
 }
 
-FlagArg& ArgParser::AddFlag(char short_name, std::string full_name, 
-                            std::string description) {
-    if (!isalpha(short_name))
-        throw std::invalid_argument("Short name must be a single alphabetic character");
-    
-    short_names_[full_name] = short_name;
-    full_names_[short_name] = full_name;
-    descriptions_[full_name] = std::move(description);
-    argument_indices_[std::move(full_name)] = arguments_.size();
-
-    std::unique_ptr<FlagArg> arg_ptr = std::make_unique<FlagArg>();
-    FlagArg& arg = *arg_ptr; 
-    arguments_.emplace_back(std::move(arg_ptr));   
-    return arg;
+FlagArg& ArgParser::AddFlag(char short_name, std::string full_name, std::string description) {
+    CheckShortName(short_name);
+    SetArgument(short_name, full_name, description);
+    return AddArgument<FlagArg>();
 }
 
 FlagArg& ArgParser::AddFlag(std::string full_name, std::string description) {
-    descriptions_[full_name] = std::move(description);
-    argument_indices_[std::move(full_name)] = arguments_.size();
-
-    std::unique_ptr<FlagArg> arg_ptr = std::make_unique<FlagArg>();
-    FlagArg& arg = *arg_ptr; 
-    arguments_.emplace_back(std::move(arg_ptr));
-    return arg;
+    SetDescription(full_name, description);
+    return AddArgument<FlagArg>();
 }
 
-bool ArgParser::GetFlag(const std::string& full_name, std::size_t index) {
-    if (!argument_indices_.contains(full_name))
-        throw std::invalid_argument("Unknown argument: " + full_name);
-    
-    std::size_t arg_index = argument_indices_[full_name];
-    std::unique_ptr<BaseArgument>& arg = arguments_[arg_index];
-    if (arg->GetType() != ArgumentType::kFlag) {
-        throw std::invalid_argument("Argument is not of flag type");
-    }
-    return dynamic_cast<FlagArg&>(*arg).GetValue(index);
+bool ArgParser::GetFlag(const std::string& full_name, std::size_t index) const {
+    return GetArgumentAs<FlagArg>(full_name, ArgumentType::kFlag).GetValue(index);
 }
 
-void ArgParser::AddHelp(char short_name, std::string full_name, 
-                        std::string description) {
-    if (!isalpha(short_name))
-        throw std::invalid_argument("Short name must be a single alphabetic character");
-
+void ArgParser::AddHelp(char short_name, std::string full_name, std::string description) {
+    CheckShortName(short_name);
     short_help_name_ = short_name;
     full_help_name_ = std::move(full_name);
     help_description_ = std::move(description);
@@ -216,170 +139,189 @@ bool ArgParser::Parse(const std::vector<std::string>& args) {
         }
     }
 
-    return Help() || IsCorrectMultiValue() && AllHaveValues();
+    return Help() || (IsCorrectMultiValue() && AllHaveValues());
 }
 
 bool ArgParser::ParseShortArgument(const std::vector<std::string>& args, size_t& i) {
-    const std::string& arg = args[i];
+    const std::string& arg = args[i];    
+    ValidationResult validation_result = ValidateShortArgument(arg); 
+    if (validation_result == ValidationResult::kHandled)
+        return true;
+    if (validation_result == ValidationResult::kError)
+        return false;
+    
     char short_name = arg[1];
-    auto equal_pos = arg.find('='); 
-    bool is_named = (equal_pos != std::string::npos);
-    if (is_named && equal_pos < 2) {
-        std::cerr << "Invalid short argument format: " << arg << std::endl;
+    validation_result = ValidateShortName(short_name);
+    if (validation_result == ValidationResult::kHandled)
+        return true;
+    if (validation_result == ValidationResult::kError)
         return false;
-    }
-    if (!is_named && arg.size() > 2) 
-        return ParseShortFlags(arg);
-    if (is_named && equal_pos != 2) {
-        std::cerr << "Invalid short argument format: " << arg << std::endl;
-        return false;
-    }
+    
+    std::string full_name = full_names_[short_name];
+    ParseContext context{args, full_name, i, arg.find('='), IsNamedArgument(arg)};
+    return ParseArgument(context);
+}
 
+ArgParser::ValidationResult ArgParser::ValidateShortName(char short_name) {
     if (!full_names_.contains(short_name)) {
         if (short_name == short_help_name_) {
             has_help_ = true;
-            return true;
+            return ValidationResult::kHandled;
         }
         std::cerr << "Unknown short argument: " << short_name << std::endl;
+        return ValidationResult::kError;
+    }
+    return ValidationResult::kValid;
+}
+
+auto ArgParser::ValidateShortArgument(const std::string& arg) 
+        -> ArgParser::ValidationResult {
+    std::size_t equal_pos = arg.find('=');
+    bool is_named = (equal_pos != std::string::npos);
+    if (is_named && equal_pos < 2) {
+        std::cerr << "Invalid short argument format: " << arg << std::endl;
+        return ValidationResult::kError;
+    }
+    if (!is_named && arg.size() > 2) {
+        if (!ParseShortFlags(arg))
+            return ValidationResult::kError;
+        return ValidationResult::kHandled;
+    } 
+    if (is_named && equal_pos != 2) {
+        std::cerr << "Invalid short argument format: " << arg << std::endl;
+        return ValidationResult::kError;
+    }
+    return ValidationResult::kValid;
+}
+
+bool ArgParser::NextValueExists(ParseContext& ctx) const {
+    if (!ctx.is_named && ctx.index + 1 >= ctx.args.size()) {
+        std::cerr << "Expected value for argument: " << ctx.full_name << std::endl;
         return false;
     }
+    return true;
+}
 
-    std::string full_name = full_names_[short_name];
-    auto& argument = arguments_[argument_indices_[full_name]];
-    switch (argument->GetType()) {
+bool ArgParser::ParseArgument(ParseContext& context) {
+    switch (GetArgument(context.full_name)->GetType()) {
         case ArgumentType::kString: {
-            if (!is_named && i + 1 >= args.size()) {
-                std::cerr << "Expected string value for argument: " << full_name << std::endl;
-                return false;
-            }
-            std::string value;
-            if (is_named) {
-                value = std::move(arg.substr(equal_pos + 1));
-            } else {
-                value = args[++i];
-            }
-            dynamic_cast<StringArg&>(*argument).AddValue(std::move(value));
-            break;
+            return ParseStringArgument(context);
         }
         case ArgumentType::kInt: {
-            if (!is_named && i + 1 >= args.size()) {
-                std::cerr << "Expected value for argument: " << full_name << std::endl;
-                return false;
-            }
-            int32_t number;
-            bool has_parsing_error = is_named && !ConvertToNumber(args[i].c_str() + equal_pos + 1, number)
-                                  || !is_named && !ConvertToNumber(args[++i].c_str(), number);
-            if (has_parsing_error) {
-                std::cerr << "Invalid integer value for argument: " << full_name << std::endl;
-                return false;
-            }
-            dynamic_cast<IntArg&>(*argument).AddValue(number);
-            break;
+            return ParseIntArgument(context);
         }
         case ArgumentType::kFlag: {
-            if (is_named) {
-                std::cerr << "Flag can not be named argument: " << full_name << std::endl;
-                return false;
-            }
-            dynamic_cast<FlagArg&>(*argument).AddValue(true);
+            return ParseFlagArgument(context);
         }
     }
-
     return true;
+}
+
+bool ArgParser::ParseStringArgument(ParseContext& ctx) {
+    if (!NextValueExists(ctx))
+        return false;
+
+    ArgPtr& argument = GetArgument(ctx.full_name);
+    std::string value;
+    if (ctx.is_named) {
+        value = std::move(ctx.args[ctx.index].substr(ctx.equal_pos + 1));
+    } else {
+        value = ctx.args[++ctx.index];
+    }
+    dynamic_cast<StringArg&>(*argument).AddValue(std::move(value));
+    return true;
+}
+
+bool ArgParser::ParseIntArgument(ParseContext& ctx) {
+    ArgPtr& argument = GetArgument(ctx.full_name);
+    if (!NextValueExists(ctx))
+        return false;
+    int32_t number;
+    const char* value_str = ctx.is_named
+                            ? ctx.args[ctx.index].c_str() + ctx.equal_pos + 1
+                            : ctx.args[++ctx.index].c_str();
+    if (!ConvertToNumber(value_str, number)) {
+        std::cerr << "Invalid integer value for argument: " << ctx.full_name << std::endl;
+        return false;
+    }
+    dynamic_cast<IntArg&>(*argument).AddValue(number);
+    return true;
+}
+
+bool ArgParser::ParseFlagArgument(ParseContext& ctx) {
+    if (ctx.is_named) {
+        std::cerr << "Flag can not be named argument: " << ctx.full_name << std::endl;
+        return false;
+    }
+    dynamic_cast<FlagArg&>(*GetArgument(ctx.full_name)).AddValue(true);
+    return true;
+}
+
+bool ArgParser::IsNamedArgument(const std::string& arg) const {
+    return arg.find('=') != std::string::npos;
 }
 
 bool ArgParser::ParseFullArgument(const std::vector<std::string>& args, size_t& i) {
     const std::string& arg = args[i];
-    std::string full_name;
-    auto equal_pos = arg.find('='); 
-    bool is_named = (equal_pos != std::string::npos);
-
-    if (is_named) {
-        full_name = arg.substr(2, equal_pos - 2);
-    } else {
-        full_name = arg.substr(2);
-        if (full_name == full_help_name_) {
-            has_help_ = true;
-            return true;
-        }
+    bool is_named = IsNamedArgument(arg);
+    if (!is_named && arg.substr(2) == full_help_name_) {
+        has_help_ = true;
+        return true;
     }
+
+    std::size_t equal_pos = arg.find('='); 
+    std::string full_name = is_named 
+                            ? arg.substr(2, equal_pos - 2)
+                            : arg.substr(2);
 
     if (!argument_indices_.contains(full_name)) {
         std::cerr << "Unknown argument: " << full_name << std::endl;
         return false;
     }
-    auto& argument = arguments_[argument_indices_[full_name]];
-    switch (argument->GetType()) {
+
+    ParseContext context{args, full_name, i, equal_pos, is_named};
+    return ParseArgument(context);
+}
+
+bool ArgParser::ParsePositionalArgument(const std::vector<std::string>& args, size_t& i) {
+    if (positional_argument_name_.empty() && !SetPositionalArgument()) {
+        std::cerr << "No positional argument defined." << std::endl;
+        return false;
+    }
+    auto& argument = GetArgument(positional_argument_name_);
+    switch(argument->GetType()) {
         case ArgumentType::kString: {
-            if (i + 1 >= args.size() && !is_named) {
-                std::cerr << "Expected string value for argument: " << full_name << std::endl;
-                return false;
-            }
-            if (is_named) {
-                dynamic_cast<StringArg&>(*argument).AddValue(args[i].substr(equal_pos + 1));
-            } else {
-                dynamic_cast<StringArg&>(*argument).AddValue(args[++i]);
-            }
-            break;
+            return ParsePositionalStringArgument(argument, args[i]);
         }
         case ArgumentType::kInt: {
-            if (i + 1 >= args.size() && !is_named) {
-                std::cerr << "Expected integer value for argument: " << full_name << std::endl;
-            }
-            int32_t number;
-            bool has_parsing_error = is_named && !ConvertToNumber(args[i].c_str() + equal_pos + 1, number)
-                                  || !is_named && !ConvertToNumber(args[++i].c_str(), number);  
-            if (has_parsing_error) {
-                std::cerr << "Invalid integer value for argument: " << full_name << std::endl;
-                return false;
-            }
-            dynamic_cast<IntArg&>(*argument).AddValue(number);
-            break;
+            return ParsePositionalIntArgument(argument, args[i]);
         }
         case ArgumentType::kFlag: {
-            if (is_named) {
-                std::cerr << "Flag can not be named argument: " << full_name << std::endl;
-                return false;
-            }
-            dynamic_cast<FlagArg&>(*argument).AddValue(true);
-            break;
-        } default: {
-            break;
+            return ParsePositionalFlagArgument();
         }
     }
     return true;
 }
 
-bool ArgParser::ParsePositionalArgument(const std::vector<std::string>& args, size_t& i) {
-    const std::string& arg = args[i];
-    if (positional_argument_name_.empty()) {
-        if (!SetPositionalArgument()) {
-            std::cerr << "No positional argument defined." << std::endl;
-            return false;
-        }
-    }
-    size_t arg_index = argument_indices_[positional_argument_name_];
-    std::unique_ptr<BaseArgument>& argument = arguments_[arg_index];
-    switch(argument->GetType()) {
-        case ArgumentType::kString: {
-            dynamic_cast<Argument<std::string>&>(*argument).AddValue(arg);
-            break;
-        }
-        case ArgumentType::kInt: {
-            int32_t number;
-            if (!ConvertToNumber(arg.c_str(), number)) {
-                std::cerr << "Invalid integer value for argument: " << positional_argument_name_ << std::endl;
-                return false;
-            }
-            dynamic_cast<Argument<int32_t>&>(*argument).AddValue(number);
-            break;
-        }
-        default: {
-            std::cerr << "Flag is not supported for positional arguments." << std::endl;
-            return false;
-        }
-    }
+bool ArgParser::ParsePositionalStringArgument(ArgPtr& argument, const std::string& str) {
+    dynamic_cast<Argument<std::string>&>(*argument).AddValue(str);
     return true;
+}
+
+bool ArgParser::ParsePositionalIntArgument(ArgPtr& argument, const std::string& str) {
+    int32_t number;
+    if (!ConvertToNumber(str.c_str(), number)) {
+        std::cerr << "Invalid integer value for argument: " 
+                    << positional_argument_name_ << std::endl;
+        return false;
+    }
+    dynamic_cast<Argument<int32_t>&>(*argument).AddValue(number);
+    return true;
+}
+
+bool ArgParser::ParsePositionalFlagArgument() {
+    std::cerr << "Flag is not supported for positional arguments." << std::endl;
+    return false;
 }
 
 bool ArgParser::SetPositionalArgument() {
@@ -424,7 +366,7 @@ bool ArgParser::ParseShortFlags(const std::string& arg) {
             return false;
         }
         std::string full_name = full_names_[flag];
-        dynamic_cast<FlagArg&>(*arguments_[argument_indices_[full_name]]).AddValue(true);
+        dynamic_cast<FlagArg&>(*GetArgument(full_name)).AddValue(true);
     }
     return true;
 }
@@ -444,10 +386,35 @@ char ArgParser::GetShortName(std::string const& full_name) const {
 
 auto ArgParser::GetArgument(const std::string& full_name) 
         -> std::unique_ptr<BaseArgument>& {
+    if (!argument_indices_.contains(full_name))
+        throw std::invalid_argument("Unknown argument: " + full_name);
     return arguments_[argument_indices_[full_name]];
 }
+
 auto ArgParser::GetArgument(const std::string& full_name) const
         -> const std::unique_ptr<BaseArgument>& {
+    if (!argument_indices_.contains(full_name))
+        throw std::invalid_argument("Unknown argument: " + full_name);
     return arguments_[argument_indices_.at(full_name)];
+}
+
+void ArgParser::SetNames(char short_name, const std::string& full_name) {
+    short_names_[full_name] = short_name;
+    full_names_[short_name] = full_name;
+}
+
+void ArgParser::SetDescription(std::string& full_name, std::string& description) {
+    descriptions_[full_name] = std::move(description);
+    argument_indices_[std::move(full_name)] = arguments_.size();
+}
+
+void ArgParser::SetArgument(char short_name, std::string& full_name, std::string& description) {
+    SetNames(short_name, full_name);
+    SetDescription(full_name, description);
+}
+
+void ArgParser::CheckShortName(char short_name) const {
+    if (!isalpha(short_name))
+        throw std::invalid_argument("Short name must be a single alphabetic character");
 }
 }
