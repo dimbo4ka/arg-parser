@@ -91,7 +91,7 @@ TEST(ArgParserTestSuite, IntTest) {
 
 TEST(ArgParserTestSuite, MultiValueTest) {
     ArgParser parser("My Parser");
-    std::vector<int> int_values;
+    std::vector<int64_t> int_values;
     parser.AddIntArgument('p', "param1").MultiValue().StoreValues(int_values);
 
     ASSERT_TRUE(parser.Parse(SplitString("app --param1=1 --param1=2 --param1=3")));
@@ -103,7 +103,7 @@ TEST(ArgParserTestSuite, MultiValueTest) {
 
 TEST(ArgParserTestSuite, MinCountMultiValueTest) {
     ArgParser parser("My Parser");
-    std::vector<int> int_values;
+    std::vector<int64_t> int_values;
     size_t MinArgsCount = 10;
     parser.AddIntArgument('p', "param1").MultiValue(MinArgsCount).StoreValues(int_values);
 
@@ -136,7 +136,7 @@ TEST(ArgParserTestSuite, FlagsTest) {
 
 TEST(ArgParserTestSuite, PositionalArgTest) {
     ArgParser parser("My Parser");
-    std::vector<int> values;
+    std::vector<int64_t> values;
     parser.AddIntArgument("Param1").MultiValue(1).Positional().StoreValues(values);
 
     ASSERT_TRUE(parser.Parse(SplitString("app 1 2 3 4 5")));
@@ -148,7 +148,7 @@ TEST(ArgParserTestSuite, PositionalArgTest) {
 
 TEST(ArgParserTestSuite, PositionalAndNormalArgTest) {
     ArgParser parser("My Parser");
-    std::vector<int> values;
+    std::vector<int64_t> values;
     parser.AddFlag('f', "flag", "Flag");
     parser.AddIntArgument('n', "number", "Some Number");
     parser.AddIntArgument("Param1").MultiValue(1).Positional().StoreValues(values);
