@@ -88,6 +88,8 @@ private:
     const ArgPtr& GetArgument(const std::string& full_name) const;
 
     bool ParseArgument(ParseContext&);
+    bool ParseTypeArgument(ParseContext&, bool = false);
+    bool ParseMultivalue(ParseContext&);
     bool ParseStringArgument(ParseContext&);
     bool ParseIntArgument(ParseContext&);
     bool ParseFlagArgument(ParseContext&);

@@ -196,31 +196,53 @@ auto ArgParser::ValidateShortArgument(const std::string& arg)
 }
 
 bool ArgParser::NextValueExists(ParseContext& ctx) const {
-    if (!ctx.is_named && ctx.index + 1 >= ctx.args.size()) {
-        std::cerr << "Expected value for argument: " << ctx.full_name << std::endl;
-        return false;
+    return ctx.is_named || ctx.index + 1 < ctx.args.size();
+}
+
+bool ArgParser::ParseTypeArgument(ParseContext& context, bool has_parsed) {
+    switch (GetArgument(context.full_name)->GetType()) {
+        case ArgumentType::kString: {
+            if (!ParseStringArgument(context) && !has_parsed)
+                return false;
+            break;
+        }
+        case ArgumentType::kInt: {
+            if (!ParseIntArgument(context) && !has_parsed)
+                return false;
+            break;
+        }
+        case ArgumentType::kFlag: {
+            if (!ParseFlagArgument(context) && !has_parsed)
+                return false;
+            break;
+        }
+    }
+    return true;
+}
+
+bool ArgParser::ParseMultivalue(ParseContext& context) {
+    bool has_parsed = false;
+    while (NextValueExists(context) && (!context.args[context.index + 1].starts_with("-") || !has_parsed)) {
+        std::cout << "ind = " << context.index << '\n';
+        if (!ParseTypeArgument(context, has_parsed))
+            return false;
+        has_parsed = true;
     }
     return true;
 }
 
 bool ArgParser::ParseArgument(ParseContext& context) {
-    switch (GetArgument(context.full_name)->GetType()) {
-        case ArgumentType::kString: {
-            return ParseStringArgument(context);
-        }
-        case ArgumentType::kInt: {
-            return ParseIntArgument(context);
-        }
-        case ArgumentType::kFlag: {
-            return ParseFlagArgument(context);
-        }
-    }
-    return true;
+    if (context.is_named || !GetArgument(context.full_name)->IsMultiValue())
+        return ParseTypeArgument(context);
+    return ParseMultivalue(context);
 }
 
 bool ArgParser::ParseStringArgument(ParseContext& ctx) {
-    if (!NextValueExists(ctx))
+    if (!NextValueExists(ctx)) {
+        std::cerr << "Expected value for argument: " << ctx.full_name << std::endl;
         return false;
+    }
+    std::cout << ctx.index << ") " << ctx.args[ctx.index] << "\n";
 
     ArgPtr& argument = GetArgument(ctx.full_name);
     std::string value;
@@ -235,8 +257,11 @@ bool ArgParser::ParseStringArgument(ParseContext& ctx) {
 
 bool ArgParser::ParseIntArgument(ParseContext& ctx) {
     ArgPtr& argument = GetArgument(ctx.full_name);
-    if (!NextValueExists(ctx))
+    if (!NextValueExists(ctx)) {
+        std::cerr << "Expected value for argument: " << ctx.full_name << std::endl;
         return false;
+    }
+
     int64_t number;
     const char* value_str = ctx.is_named
                             ? ctx.args[ctx.index].c_str() + ctx.equal_pos + 1
