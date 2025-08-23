@@ -191,3 +191,21 @@ TEST(ArgParserTestSuite, HelpTest) {
     ASSERT_TRUE(parser.Parse(SplitString("app --help")));
     ASSERT_TRUE(parser.Help());
 }
+
+TEST(ArgParserTestSuite, Multivalue) {
+    ArgParser parser("My Parser");
+    parser.AddStringArgument("inputs").MultiValue();
+    parser.AddStringArgument("outputs").MultiValue();
+    ASSERT_TRUE(parser.Parse(SplitString("app --inputs input1.txt input2.txt --outputs output1.txt output2.txt")));
+    ASSERT_EQ(parser.GetStringValue("inputs", 0), "input1.txt");
+    ASSERT_EQ(parser.GetStringValue("inputs", 1), "input2.txt");
+    ASSERT_EQ(parser.GetStringValue("outputs", 0), "output1.txt");
+    ASSERT_EQ(parser.GetStringValue("outputs", 1), "output2.txt");
+}
+
+TEST(ArgParseTestSuite, MinArgs) {
+    ArgParser parser("My Parser");
+    parser.AddIntArgument('n', "numbers").MultiValue(3);
+    parser.AddStringArgument('s', "strings").MultiValue(1);
+    ASSERT_TRUE(parser.Parse(SplitString("app -n 1 2 3 -s hello")));
+}
