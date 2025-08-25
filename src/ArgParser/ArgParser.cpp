@@ -223,7 +223,6 @@ bool ArgParser::ParseTypeArgument(ParseContext& context, bool has_parsed) {
 bool ArgParser::ParseMultivalue(ParseContext& context) {
     bool has_parsed = false;
     while (NextValueExists(context) && (!context.args[context.index + 1].starts_with("-") || !has_parsed)) {
-        std::cout << "ind = " << context.index << '\n';
         if (!ParseTypeArgument(context, has_parsed))
             return false;
         has_parsed = true;
@@ -242,7 +241,6 @@ bool ArgParser::ParseStringArgument(ParseContext& ctx) {
         std::cerr << "Expected value for argument: " << ctx.full_name << std::endl;
         return false;
     }
-    std::cout << ctx.index << ") " << ctx.args[ctx.index] << "\n";
 
     ArgPtr& argument = GetArgument(ctx.full_name);
     std::string value;
@@ -363,7 +361,7 @@ bool ArgParser::SetPositionalArgument() {
 bool ArgParser::IsCorrectMultiValue() const {
     for (auto& argument : arguments_) {
         if (argument->IsMultiValue() && argument->min_args() > argument->GetArgCount()) {
-            std::cout << "Multi-value argument" << "has incorrect number of values." << std::endl;
+            std::cerr << "Multi-value argument" << "has incorrect number of values." << std::endl;
             return false;
         }
     }
